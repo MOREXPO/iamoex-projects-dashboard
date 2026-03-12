@@ -1,23 +1,26 @@
 import { deployedByRepo } from '@/lib/deployments';
+import { execSync } from 'node:child_process';
 
 type GitHubRepo = {
   name: string;
-  html_url: string;
+  url: string;
   description: string | null;
-  updated_at: string;
-  private: boolean;
-  language: string | null;
-  topics?: string[];
+  updatedAt: string;
+  visibility: 'PUBLIC' | 'PRIVATE' | 'INTERNAL';
+  primaryLanguage?: { name: string } | null;
 };
 
 async function getRepos(): Promise<GitHubRepo[]> {
-  const res = await fetch('https://api.github.com/users/MOREXPO/repos?per_page=100&sort=updated', {
-    next: { revalidate: 600 },
-  });
-
-  if (!res.ok) return [];
-  const data = (await res.json()) as GitHubRepo[];
-  return Array.isArray(data) ? data : [];
+  try {
+    const out = execSync(
+      "gh repo list MOREXPO --limit 200 --json name,url,description,updatedAt,visibility,primaryLanguage",
+      { encoding: 'utf8' }
+    );
+    const data = JSON.parse(out) as GitHubRepo[];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
 }
 
 function statusBadge(isDeployed: boolean) {
@@ -59,11 +62,11 @@ export default async function Home() {
                 <div className="mt-4 space-y-2 text-sm">
                   <p>
                     <span className="text-zinc-400">GitHub:</span>{' '}
-                    <a className="text-blue-300 underline" href={repo.html_url} target="_blank">
-                      {repo.html_url}
+                    <a className="text-blue-300 underline" href={repo.url} target="_blank">
+                      {repo.url}
                     </a>
                   </p>
-                  <p className="text-zinc-400">Actualizado: {new Date(repo.updated_at).toLocaleString('es-ES')}</p>
+                  <p className="text-zinc-400">Actualizado: {new Date(repo.updatedAt).toLocaleString('es-ES')}</p>
 
                   {isDeployed ? (
                     <>
@@ -84,14 +87,10 @@ export default async function Home() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {repo.language && (
-                    <span className="text-xs rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1">{repo.language}</span>
+                  <span className="text-xs rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1">{repo.visibility}</span>
+                  {repo.primaryLanguage?.name && (
+                    <span className="text-xs rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1">{repo.primaryLanguage.name}</span>
                   )}
-                  {(repo.topics || []).slice(0, 5).map((topic) => (
-                    <span key={topic} className="text-xs rounded-md border border-zinc-700 bg-zinc-800 px-2 py-1">
-                      {topic}
-                    </span>
-                  ))}
                 </div>
               </article>
             );

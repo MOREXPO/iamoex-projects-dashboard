@@ -20,8 +20,8 @@ export const deployedByRepo: Record<string, DeploymentInfo> = {
     tunnelName: 'betfair-trading-stable',
     tunnelId: '9a733954-4c8b-49d5-a1f1-03295e7bc348',
   },
-  'respiratory-news-dashboard': {
-    publicUrl: 'https://respiratory-news.iamoex.com',
+  respiratory: {
+    publicUrl: 'https://respiratory.iamoex.com',
     tunnelName: 'respiratory-news-stable',
     tunnelId: 'ec4d92d3-5aa2-4ff5-bb27-de4b1a11ae77',
   },

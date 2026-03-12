@@ -1,0 +1,7 @@
+tunnel: f5988cf9-128a-404f-ad9a-6cf0b3b37d95
+credentials-file: /data/.cloudflared/f5988cf9-128a-404f-ad9a-6cf0b3b37d95.json
+
+ingress:
+  - hostname: projects.iamoex.com
+    service: http://localhost:3005
+  - service: http_status:404
